@@ -27,12 +27,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Corrected SOAP client that avoids double envelope wrapping
+ * Final corrected SOAP client with proper namespace format matching your working examples
  */
 @Service
 public class SimpleAuthorizationSoapClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleAuthorizationSoapClient.class);
+    
+    private static final String NAMESPACE_URI = "http://web.service.eas.citso.fsa.usda.gov";
+    private static final String NAMESPACE_PREFIX = "web";
 
     @Value("${soap.service.url:http://10.29.60.95:8080/easws/sharedservice/AuthorizationSharedService}")
     private String serviceUrl;
@@ -55,7 +58,7 @@ public class SimpleAuthorizationSoapClient {
      */
     public boolean isHealthy() {
         try {
-            Document requestDoc = createSoapBodyContent("isHealthy", null);
+            Document requestDoc = createIsHealthyRequest();
             String response = sendSoapRequest(requestDoc);
             
             // Parse response to extract boolean value
@@ -114,19 +117,13 @@ public class SimpleAuthorizationSoapClient {
         }
     }
 
-    private Document createSoapBodyContent(String operation, Element arg0) throws Exception {
+    private Document createIsHealthyRequest() throws Exception {
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
         Document doc = docBuilder.newDocument();
 
-        // Create only the operation element (not full SOAP envelope)
-        Element operationElement = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", operation);
+        // Create operation element with proper namespace and prefix
+        Element operationElement = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":isHealthy");
         doc.appendChild(operationElement);
-
-        if (arg0 != null) {
-            // Import the arg0 element to this document
-            Node importedArg0 = doc.importNode(arg0, true);
-            operationElement.appendChild(importedArg0);
-        }
 
         return doc;
     }
@@ -135,24 +132,24 @@ public class SimpleAuthorizationSoapClient {
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
         Document doc = docBuilder.newDocument();
 
-        // Create operation element
-        Element operationElement = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "findMatchingUserIdentity");
+        // Create operation element with proper namespace and prefix
+        Element operationElement = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":findMatchingUserIdentity");
         doc.appendChild(operationElement);
 
-        // Create arg0
-        Element arg0 = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "arg0");
+        // Create arg0 (no namespace prefix needed for arg0)
+        Element arg0 = doc.createElement("arg0");
         operationElement.appendChild(arg0);
 
-        // Create MapEntry
-        Element mapEntry = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "MapEntry");
+        // Create MapEntry with web: prefix
+        Element mapEntry = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":MapEntry");
         arg0.appendChild(mapEntry);
 
-        // Create Key and Value
-        Element key = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "Key");
+        // Create Key and Value with web: prefix
+        Element key = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":Key");
         key.setTextContent("usda_eauth_id");
         mapEntry.appendChild(key);
 
-        Element value = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "Value");
+        Element value = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":Value");
         value.setTextContent(usdaEauthId);
         mapEntry.appendChild(value);
 
@@ -163,21 +160,21 @@ public class SimpleAuthorizationSoapClient {
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
         Document doc = docBuilder.newDocument();
 
-        // Create operation element
-        Element operationElement = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "findOfficesByEauthId");
+        // Create operation element with proper namespace and prefix
+        Element operationElement = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":findOfficesByEauthId");
         doc.appendChild(operationElement);
 
-        // Create arg0
-        Element arg0 = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "arg0");
+        // Create arg0 (no namespace prefix needed for arg0)
+        Element arg0 = doc.createElement("arg0");
         operationElement.appendChild(arg0);
 
-        // Create UsdaEauthId
-        Element eauthIdElement = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "UsdaEauthId");
+        // Create UsdaEauthId with web: prefix
+        Element eauthIdElement = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":UsdaEauthId");
         eauthIdElement.setTextContent(usdaEauthId);
         arg0.appendChild(eauthIdElement);
 
-        // Create OfficeType
-        Element officeTypeElement = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "OfficeType");
+        // Create OfficeType with web: prefix
+        Element officeTypeElement = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":OfficeType");
         officeTypeElement.setTextContent(officeType);
         arg0.appendChild(officeTypeElement);
 
@@ -188,19 +185,19 @@ public class SimpleAuthorizationSoapClient {
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
         Document doc = docBuilder.newDocument();
 
-        // Create operation element
-        Element operationElement = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "getUserRoles");
+        // Create operation element with proper namespace and prefix
+        Element operationElement = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":getUserRoles");
         doc.appendChild(operationElement);
 
-        // Create arg0
-        Element arg0 = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "arg0");
+        // Create arg0 (no namespace prefix needed for arg0)
+        Element arg0 = doc.createElement("arg0");
         operationElement.appendChild(arg0);
 
-        // Create UserIdentity
-        Element userIdentityElement = doc.createElementNS("http://web.service.eas.citso.fsa.usda.gov", "UserIdentity");
+        // Create UserIdentity with web: prefix
+        Element userIdentityElement = doc.createElementNS(NAMESPACE_URI, NAMESPACE_PREFIX + ":UserIdentity");
         arg0.appendChild(userIdentityElement);
 
-        // Create UserIdentity fields
+        // Create UserIdentity fields (no namespace prefix for these inner elements)
         Element authSysId = doc.createElement("AuthenticationSystemIdentifier");
         authSysId.setTextContent(userIdentityDto.getAuthenticationSystemIdentifier());
         userIdentityElement.appendChild(authSysId);
