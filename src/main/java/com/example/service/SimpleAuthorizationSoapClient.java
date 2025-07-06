@@ -18,6 +18,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.XMLConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -293,6 +294,32 @@ public class SimpleAuthorizationSoapClient {
 
     private List<String> parseListValues(Node responseNode, String xpathExpression) throws Exception {
         XPath xpath = xPathFactory.newXPath();
+        
+        // Set up namespace context for xpath
+        xpath.setNamespaceContext(new javax.xml.namespace.NamespaceContext() {
+            @Override
+            public String getNamespaceURI(String prefix) {
+                switch (prefix) {
+                    case "ns2":
+                        return "http://web.service.eas.citso.fsa.usda.gov";
+                    case "soap":
+                        return "http://schemas.xmlsoap.org/soap/envelope/";
+                    default:
+                        return javax.xml.XMLConstants.NULL_NS_URI;
+                }
+            }
+
+            @Override
+            public String getPrefix(String namespaceURI) {
+                return null;
+            }
+
+            @Override
+            public java.util.Iterator<String> getPrefixes(String namespaceURI) {
+                return null;
+            }
+        });
+        
         NodeList nodeList = (NodeList) xpath.evaluate(xpathExpression, responseNode, XPathConstants.NODESET);
         
         List<String> values = new ArrayList<>();
@@ -301,11 +328,39 @@ public class SimpleAuthorizationSoapClient {
             values.add(node.getTextContent());
         }
         
+        logger.debug("Parsed {} values from xpath: {}", values.size(), xpathExpression);
+        logger.debug("Values: {}", values);
+        
         return values;
     }
 
     private UserRolesResponseDto parseUserRoles(Node responseNode) throws Exception {
         XPath xpath = xPathFactory.newXPath();
+        
+        // Set up namespace context for xpath
+        xpath.setNamespaceContext(new javax.xml.namespace.NamespaceContext() {
+            @Override
+            public String getNamespaceURI(String prefix) {
+                switch (prefix) {
+                    case "ns2":
+                        return "http://web.service.eas.citso.fsa.usda.gov";
+                    case "soap":
+                        return "http://schemas.xmlsoap.org/soap/envelope/";
+                    default:
+                        return javax.xml.XMLConstants.NULL_NS_URI;
+                }
+            }
+
+            @Override
+            public String getPrefix(String namespaceURI) {
+                return null;
+            }
+
+            @Override
+            public java.util.Iterator<String> getPrefixes(String namespaceURI) {
+                return null;
+            }
+        });
         
         // Parse roles
         List<String> roles = parseListValues(responseNode, "//ns2:UserRoles/ns2:ListValue");
