@@ -1,0 +1,362 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://web.service.eas.citso.fsa.usda.gov" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="AuthorizationSharedService" targetNamespace="http://web.service.eas.citso.fsa.usda.gov">
+  <wsdl:types>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://web.service.eas.citso.fsa.usda.gov" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://web.service.eas.citso.fsa.usda.gov" version="1.0">
+      
+      <!-- Request/Response Elements for Selected Operations -->
+      <xs:element name="FindMatchingUserIdentityRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element form="qualified" maxOccurs="unbounded" name="MapEntry" type="tns:MapEntry"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindMatchingUserIdentityResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element form="qualified" name="UserIdentity" type="tns:UserIdentity"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      <xs:element name="FindOfficesByEauthIdRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element form="qualified" name="UsdaEauthId" type="xs:string"/>
+            <xs:element form="qualified" maxOccurs="unbounded" name="OfficeType" type="tns:officeType"/>
+            <xs:element form="qualified" name="RequestToken" type="tns:requestToken"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindOfficesByEauthIdResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element form="qualified" name="Offices" type="tns:ListType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      <xs:element name="FindUserCriteriaResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element form="qualified" name="Users" type="tns:ListType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FindUsersByCriteriaRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element form="qualified" name="OfficeId" type="xs:string"/>
+            <xs:element form="qualified" name="RoleName" type="xs:string"/>
+            <xs:element form="qualified" name="RequestToken" type="tns:requestToken"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      <xs:element name="GetUserRolesRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element form="qualified" name="UserIdentity" type="tns:UserIdentity"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GetUserRolesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element form="qualified" name="UserRoles" type="tns:ListType"/>
+            <xs:element form="qualified" minOccurs="0" name="UserIdentity" type="tns:UserIdentity"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      <!-- Operation Elements -->
+      <xs:element name="findMatchingUserIdentity" type="tns:findMatchingUserIdentity"/>
+      <xs:element name="findMatchingUserIdentityResponse" type="tns:findMatchingUserIdentityResponse"/>
+      <xs:element name="findOfficesByEauthId" type="tns:findOfficesByEauthId"/>
+      <xs:element name="findOfficesByEauthIdResponse" type="tns:findOfficesByEauthIdResponse"/>
+      <xs:element name="findUsersByCriteria" type="tns:findUsersByCriteria"/>
+      <xs:element name="findUsersByCriteriaResponse" type="tns:findUsersByCriteriaResponse"/>
+      <xs:element name="getUserRoles" type="tns:getUserRoles"/>
+      <xs:element name="getUserRolesResponse" type="tns:getUserRolesResponse"/>
+      <xs:element name="isHealthy" type="tns:isHealthy"/>
+      <xs:element name="isHealthyResponse" type="tns:isHealthyResponse"/>
+      
+      <!-- Complex Types for Operations -->
+      <xs:complexType name="findMatchingUserIdentity">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="findMatchingUserIdentityResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <xs:complexType name="findOfficesByEauthId">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="findOfficesByEauthIdResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <xs:complexType name="findUsersByCriteria">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="findUsersByCriteriaResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <xs:complexType name="getUserRoles">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="getUserRolesResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <xs:complexType name="isHealthy">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="isHealthyResponse">
+        <xs:sequence>
+          <xs:element name="return" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <!-- Supporting Complex Types -->
+      <xs:complexType name="MapEntry">
+        <xs:sequence>
+          <xs:element form="qualified" name="Key" type="xs:string"/>
+          <xs:element form="qualified" name="Value" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <xs:complexType name="UserIdentity">
+        <xs:sequence>
+          <xs:element name="AuthenticationSystemIdentifier" type="xs:string"/>
+          <xs:element name="AuthorizationSystemIdentifier" type="xs:string"/>
+          <xs:element name="UserLoginName" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <xs:complexType name="requestToken">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="applicationIdentifier" type="xs:string"/>
+          <xs:element minOccurs="0" name="requestHost" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <xs:complexType name="ListType">
+        <xs:sequence>
+          <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="ListValue" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      
+      <!-- Simple Types -->
+      <xs:simpleType name="officeType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FSA"/>
+          <xs:enumeration value="FLP"/>
+          <xs:enumeration value="FLPFinance"/>
+          <xs:enumeration value="FLPJurisdiction"/>
+        </xs:restriction>
+      </xs:simpleType>
+      
+      <!-- Exception -->
+      <xs:element name="AuthorizationServiceValidationException" type="tns:AuthorizationServiceValidationException"/>
+      <xs:complexType name="AuthorizationServiceValidationException">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </wsdl:types>
+  
+  <!-- Messages for Selected Operations -->
+  <wsdl:message name="findMatchingUserIdentity">
+    <wsdl:part element="tns:findMatchingUserIdentity" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="findMatchingUserIdentityResponse">
+    <wsdl:part element="tns:findMatchingUserIdentityResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:message name="getUserRoles">
+    <wsdl:part element="tns:getUserRoles" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getUserRolesResponse">
+    <wsdl:part element="tns:getUserRolesResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:message name="findUsersByCriteria">
+    <wsdl:part element="tns:findUsersByCriteria" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="findUsersByCriteriaResponse">
+    <wsdl:part element="tns:findUsersByCriteriaResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:message name="findOfficesByEauthId">
+    <wsdl:part element="tns:findOfficesByEauthId" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="findOfficesByEauthIdResponse">
+    <wsdl:part element="tns:findOfficesByEauthIdResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:message name="isHealthy">
+    <wsdl:part element="tns:isHealthy" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="isHealthyResponse">
+    <wsdl:part element="tns:isHealthyResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:message name="AuthorizationServiceValidationException">
+    <wsdl:part element="tns:AuthorizationServiceValidationException" name="AuthorizationServiceValidationException">
+    </wsdl:part>
+  </wsdl:message>
+  
+  <!-- Port Type with Selected Operations -->
+  <wsdl:portType name="AuthorizationSharedService">
+    <wsdl:operation name="findMatchingUserIdentity">
+      <wsdl:input message="tns:findMatchingUserIdentity" name="findMatchingUserIdentity">
+      </wsdl:input>
+      <wsdl:output message="tns:findMatchingUserIdentityResponse" name="findMatchingUserIdentityResponse">
+      </wsdl:output>
+      <wsdl:fault message="tns:AuthorizationServiceValidationException" name="AuthorizationServiceValidationException">
+      </wsdl:fault>
+    </wsdl:operation>
+    
+    <wsdl:operation name="getUserRoles">
+      <wsdl:input message="tns:getUserRoles" name="getUserRoles">
+      </wsdl:input>
+      <wsdl:output message="tns:getUserRolesResponse" name="getUserRolesResponse">
+      </wsdl:output>
+      <wsdl:fault message="tns:AuthorizationServiceValidationException" name="AuthorizationServiceValidationException">
+      </wsdl:fault>
+    </wsdl:operation>
+    
+    <wsdl:operation name="findUsersByCriteria">
+      <wsdl:input message="tns:findUsersByCriteria" name="findUsersByCriteria">
+      </wsdl:input>
+      <wsdl:output message="tns:findUsersByCriteriaResponse" name="findUsersByCriteriaResponse">
+      </wsdl:output>
+      <wsdl:fault message="tns:AuthorizationServiceValidationException" name="AuthorizationServiceValidationException">
+      </wsdl:fault>
+    </wsdl:operation>
+    
+    <wsdl:operation name="findOfficesByEauthId">
+      <wsdl:input message="tns:findOfficesByEauthId" name="findOfficesByEauthId">
+      </wsdl:input>
+      <wsdl:output message="tns:findOfficesByEauthIdResponse" name="findOfficesByEauthIdResponse">
+      </wsdl:output>
+      <wsdl:fault message="tns:AuthorizationServiceValidationException" name="AuthorizationServiceValidationException">
+      </wsdl:fault>
+    </wsdl:operation>
+    
+    <wsdl:operation name="isHealthy">
+      <wsdl:input message="tns:isHealthy" name="isHealthy">
+      </wsdl:input>
+      <wsdl:output message="tns:isHealthyResponse" name="isHealthyResponse">
+      </wsdl:output>
+      <wsdl:fault message="tns:AuthorizationServiceValidationException" name="AuthorizationServiceValidationException">
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  
+  <!-- Binding with Selected Operations -->
+  <wsdl:binding name="AuthorizationSharedServiceSoapBinding" type="tns:AuthorizationSharedService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    
+    <wsdl:operation name="findMatchingUserIdentity">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="findMatchingUserIdentity">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="findMatchingUserIdentityResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="AuthorizationServiceValidationException">
+        <soap:fault name="AuthorizationServiceValidationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    
+    <wsdl:operation name="getUserRoles">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getUserRoles">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getUserRolesResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="AuthorizationServiceValidationException">
+        <soap:fault name="AuthorizationServiceValidationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    
+    <wsdl:operation name="findUsersByCriteria">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="findUsersByCriteria">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="findUsersByCriteriaResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="AuthorizationServiceValidationException">
+        <soap:fault name="AuthorizationServiceValidationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    
+    <wsdl:operation name="findOfficesByEauthId">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="findOfficesByEauthId">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="findOfficesByEauthIdResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="AuthorizationServiceValidationException">
+        <soap:fault name="AuthorizationServiceValidationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    
+    <wsdl:operation name="isHealthy">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="isHealthy">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="isHealthyResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="AuthorizationServiceValidationException">
+        <soap:fault name="AuthorizationServiceValidationException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  
+  <!-- Service Definition -->
+  <wsdl:service name="AuthorizationSharedService">
+    <wsdl:port binding="tns:AuthorizationSharedServiceSoapBinding" name="AuthorizationServicePort">
+      <soap:address location="http://10.29.60.95:8080/easws/sharedservice/AuthorizationSharedService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,280 @@
+package com.example.service;
+
+import com.example.soap.client.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.xml.ws.BindingProvider;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class AuthorizationSoapClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthorizationSoapClient.class);
+
+    @Value("${soap.service.url:http://10.29.60.95:8080/easws/sharedservice/AuthorizationSharedService}")
+    private String serviceUrl;
+
+    @Value("${soap.connection.timeout:30000}")
+    private int connectionTimeout;
+
+    @Value("${soap.request.timeout:60000}")
+    private int requestTimeout;
+
+    private AuthorizationSharedService getService() {
+        try {
+            // Create service from generated code
+            AuthorizationSharedServiceService service = new AuthorizationSharedServiceService();
+            AuthorizationSharedService port = service.getAuthorizationServicePort();
+            
+            // Configure endpoint and timeouts
+            BindingProvider bindingProvider = (BindingProvider) port;
+            Map<String, Object> context = bindingProvider.getRequestContext();
+            context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, serviceUrl);
+            context.put("com.sun.xml.ws.connect.timeout", connectionTimeout);
+            context.put("com.sun.xml.ws.request.timeout", requestTimeout);
+            
+            return port;
+        } catch (Exception e) {
+            logger.error("Error creating SOAP service", e);
+            throw new RuntimeException("Failed to create SOAP service", e);
+        }
+    }
+
+    /**
+     * Check if the service is healthy
+     */
+    public boolean isHealthy() {
+        try {
+            AuthorizationSharedService service = getService();
+            // Call isHealthy without parameters based on the error message
+            IsHealthyResponse response = service.isHealthy();
+            return response.isReturn();
+        } catch (Exception e) {
+            logger.error("Error checking service health", e);
+            return false;
+        }
+    }
+
+    /**
+     * Find matching user identity by eauth ID
+     */
+    public UserIdentityDto findMatchingUserIdentity(String usdaEauthId) {
+        try {
+            AuthorizationSharedService service = getService();
+            
+            // Create the parameter object directly
+            Object arg0 = createMapEntryList(usdaEauthId);
+            
+            // Call service using the correct method signature
+            Object response = service.findMatchingUserIdentity(arg0);
+            
+            // Cast to the correct response type
+            FindMatchingUserIdentityResponse typedResponse = (FindMatchingUserIdentityResponse) response;
+            
+            // Extract user identity from response
+            Object returnValue = typedResponse.getReturn();
+            UserIdentity userIdentity = extractUserIdentity(returnValue);
+            
+            // Convert to DTO
+            return convertToUserIdentityDto(userIdentity);
+        } catch (Exception e) {
+            logger.error("Error finding matching user identity for eauth ID: {}", usdaEauthId, e);
+            throw new RuntimeException("Failed to find matching user identity", e);
+        }
+    }
+
+    /**
+     * Find offices by eauth ID
+     */
+    public List<String> findOfficesByEauthId(String usdaEauthId, String officeType) {
+        try {
+            AuthorizationSharedService service = getService();
+            
+            // Create the parameter object
+            Object arg0 = createOfficesRequestObject(usdaEauthId, officeType);
+            
+            // Call service
+            Object response = service.findOfficesByEauthId(arg0);
+            
+            // Cast and extract data
+            FindOfficesByEauthIdResponse typedResponse = (FindOfficesByEauthIdResponse) response;
+            Object returnValue = typedResponse.getReturn();
+            
+            return extractListValues(returnValue, "offices");
+        } catch (Exception e) {
+            logger.error("Error finding offices for eauth ID: {} and office type: {}", usdaEauthId, officeType, e);
+            throw new RuntimeException("Failed to find offices by eauth ID", e);
+        }
+    }
+
+    /**
+     * Get user roles
+     */
+    public UserRolesResponseDto getUserRoles(UserIdentityDto userIdentityDto) {
+        try {
+            AuthorizationSharedService service = getService();
+            
+            // Create parameter object
+            Object arg0 = createUserIdentityObject(userIdentityDto);
+            
+            // Call service
+            Object response = service.getUserRoles(arg0);
+            
+            // Cast and extract data
+            GetUserRolesResponse typedResponse = (GetUserRolesResponse) response;
+            Object returnValue = typedResponse.getReturn();
+            
+            // Extract user roles and identity
+            List<String> roles = extractListValues(returnValue, "userRoles");
+            UserIdentity userIdentity = extractUserIdentity(returnValue);
+            
+            // Convert response to DTO
+            UserRolesResponseDto result = new UserRolesResponseDto();
+            result.setUserRoles(roles);
+            result.setUserIdentity(convertToUserIdentityDto(userIdentity));
+            
+            return result;
+        } catch (Exception e) {
+            logger.error("Error getting user roles for user: {}", userIdentityDto.getUserLoginName(), e);
+            throw new RuntimeException("Failed to get user roles", e);
+        }
+    }
+
+    /**
+     * Find users by criteria
+     */
+    public List<String> findUsersByCriteria(String officeId, String roleName) {
+        try {
+            AuthorizationSharedService service = getService();
+            
+            // Create parameter object
+            Object arg0 = createUserCriteriaObject(officeId, roleName);
+            
+            // Call service
+            Object response = service.findUsersByCriteria(arg0);
+            
+            // Cast and extract data
+            FindUsersByCriteriaResponse typedResponse = (FindUsersByCriteriaResponse) response;
+            Object returnValue = typedResponse.getReturn();
+            
+            return extractListValues(returnValue, "users");
+        } catch (Exception e) {
+            logger.error("Error finding users by criteria - office: {}, role: {}", officeId, roleName, e);
+            throw new RuntimeException("Failed to find users by criteria", e);
+        }
+    }
+
+    // Helper methods to create request objects using reflection or direct instantiation
+    private Object createMapEntryList(String usdaEauthId) {
+        try {
+            // Create MapEntry using generated class
+            MapEntry mapEntry = new MapEntry();
+            mapEntry.setKey("usda_eauth_id");
+            mapEntry.setValue(usdaEauthId);
+            
+            // Create a list containing the map entry
+            java.util.List<MapEntry> mapEntryList = new java.util.ArrayList<>();
+            mapEntryList.add(mapEntry);
+            
+            return mapEntryList;
+        } catch (Exception e) {
+            logger.error("Error creating map entry list", e);
+            throw new RuntimeException("Failed to create map entry list", e);
+        }
+    }
+
+    private Object createOfficesRequestObject(String usdaEauthId, String officeType) {
+        try {
+            // Create request object dynamically
+            // This will depend on your generated classes structure
+            Object requestObj = new Object() {
+                public String usdaEauthId = usdaEauthId;
+                public String officeType = officeType;
+            };
+            return requestObj;
+        } catch (Exception e) {
+            logger.error("Error creating offices request object", e);
+            throw new RuntimeException("Failed to create offices request object", e);
+        }
+    }
+
+    private Object createUserIdentityObject(UserIdentityDto userIdentityDto) {
+        try {
+            // Create UserIdentity using generated class
+            UserIdentity userIdentity = new UserIdentity();
+            userIdentity.setAuthenticationSystemIdentifier(userIdentityDto.getAuthenticationSystemIdentifier());
+            userIdentity.setAuthorizationSystemIdentifier(userIdentityDto.getAuthorizationSystemIdentifier());
+            userIdentity.setUserLoginName(userIdentityDto.getUserLoginName());
+            
+            return userIdentity;
+        } catch (Exception e) {
+            logger.error("Error creating user identity object", e);
+            throw new RuntimeException("Failed to create user identity object", e);
+        }
+    }
+
+    private Object createUserCriteriaObject(String officeId, String roleName) {
+        try {
+            // Create request object dynamically
+            Object requestObj = new Object() {
+                public String officeId = officeId;
+                public String roleName = roleName;
+            };
+            return requestObj;
+        } catch (Exception e) {
+            logger.error("Error creating user criteria object", e);
+            throw new RuntimeException("Failed to create user criteria object", e);
+        }
+    }
+
+    // Helper methods to extract data from response objects
+    private UserIdentity extractUserIdentity(Object returnValue) {
+        try {
+            // Use reflection or casting to extract UserIdentity
+            if (returnValue instanceof UserIdentity) {
+                return (UserIdentity) returnValue;
+            }
+            // Add reflection logic here if needed
+            return null;
+        } catch (Exception e) {
+            logger.error("Error extracting user identity", e);
+            throw new RuntimeException("Failed to extract user identity", e);
+        }
+    }
+
+    private List<String> extractListValues(Object returnValue, String listType) {
+        try {
+            // Use reflection to extract list values
+            // This will depend on your generated classes structure
+            java.lang.reflect.Method getListMethod = returnValue.getClass().getMethod("get" + 
+                Character.toUpperCase(listType.charAt(0)) + listType.substring(1));
+            Object listObject = getListMethod.invoke(returnValue);
+            
+            if (listObject instanceof ListType) {
+                ListType listType1 = (ListType) listObject;
+                return listType1.getListValue();
+            }
+            
+            return new java.util.ArrayList<>();
+        } catch (Exception e) {
+            logger.error("Error extracting list values for type: {}", listType, e);
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    private UserIdentityDto convertToUserIdentityDto(UserIdentity userIdentity) {
+        if (userIdentity == null) {
+            return null;
+        }
+        
+        UserIdentityDto dto = new UserIdentityDto();
+        dto.setAuthenticationSystemIdentifier(userIdentity.getAuthenticationSystemIdentifier());
+        dto.setAuthorizationSystemIdentifier(userIdentity.getAuthorizationSystemIdentifier());
+        dto.setUserLoginName(userIdentity.getUserLoginName());
+        return dto;
+    }
+}

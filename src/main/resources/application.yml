@@ -1,0 +1,37 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /soap-service-example
+
+spring:
+  application:
+    name: SoapServiceConsumerExample
+
+# SOAP Service Configuration
+soap:
+  service:
+    url: http://10.29.60.95:8080/easws/sharedservice/AuthorizationSharedService
+  connection:
+    timeout: 30000  # 30 seconds
+  read:
+    timeout: 60000  # 60 seconds
+
+# Logging Configuration
+logging:
+  level:
+    com.example: DEBUG
+    org.springframework.ws: DEBUG
+    org.springframework.ws.client.MessageTracing: TRACE
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
