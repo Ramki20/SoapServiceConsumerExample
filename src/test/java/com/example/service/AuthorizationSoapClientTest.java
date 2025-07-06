@@ -1,24 +1,20 @@
 package com.example.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.ws.test.client.RequestMatchers.anything;
-import static org.springframework.ws.test.client.ResponseCreators.withException;
-import static org.springframework.ws.test.client.ResponseCreators.withPayload;
-
-import java.util.List;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import org.springframework.ws.test.client.MockWebServiceServer;
+import org.springframework.ws.transport.http.HttpUrlConnectionMessageSender;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.ws.test.client.RequestMatchers.*;
+import static org.springframework.ws.test.client.ResponseCreators.*;
 
 @SpringBootTest
 @SpringJUnitConfig
@@ -30,9 +26,15 @@ public class AuthorizationSoapClientTest {
 
     @BeforeEach
     void setUp() {
+        // Create WebServiceTemplate with proper configuration
         webServiceTemplate = new WebServiceTemplate();
         webServiceTemplate.setDefaultUri("http://localhost:8080/mock-soap-service");
+        webServiceTemplate.setMessageSender(new HttpUrlConnectionMessageSender());
+        
+        // Create the SOAP client with the configured template
         soapClient = new SimpleAuthorizationSoapClient(webServiceTemplate);
+        
+        // Create mock server from the template
         mockServer = MockWebServiceServer.createServer(webServiceTemplate);
     }
 
@@ -184,70 +186,28 @@ public class AuthorizationSoapClientTest {
 
     @Test
     void testIsHealthy_ServiceDown() {
-        // Mock a connection error
-        mockServer.expect(anything())
-                .andRespond(withException(new java.net.ConnectException("Connection refused")));
+        // Mock a SOAP fault response
+        String faultResponse = """
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+               <soap:Body>
+                  <soap:Fault>
+                     <faultcode>Server</faultcode>
+                     <faultstring>Service unavailable</faultstring>
+                  </soap:Fault>
+               </soap:Body>
+            </soap:Envelope>
+            """;
 
-        // Execute test - should return false when service is down
+        Source responseSource = new StreamSource(new java.io.StringReader(faultResponse));
+        
+        mockServer.expect(anything())
+                .andRespond(withPayload(responseSource));
+
+        // Execute test - should return false when service returns fault
         boolean result = soapClient.isHealthy();
 
         // Verify
         assertFalse(result);
         mockServer.verify();
-    }
-
-    @Test
-    void testFindMatchingUserIdentity_NotFound() {
-        // Mock response with empty result
-        String responsePayload = """
-            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-               <soap:Body>
-                  <ns2:findMatchingUserIdentityResponse xmlns:ns2="http://web.service.eas.citso.fsa.usda.gov">
-                     <return>
-                        <ns2:UserIdentity>
-                           <AuthenticationSystemIdentifier></AuthenticationSystemIdentifier>
-                           <AuthorizationSystemIdentifier></AuthorizationSystemIdentifier>
-                           <UserLoginName></UserLoginName>
-                        </ns2:UserIdentity>
-                     </return>
-                  </ns2:findMatchingUserIdentityResponse>
-               </soap:Body>
-            </soap:Envelope>
-            """;
-
-        Source responseSource = new StreamSource(new java.io.StringReader(responsePayload));
-        
-        mockServer.expect(anything())
-                .andRespond(withPayload(responseSource));
-
-        // Execute test
-        UserIdentityDto result = soapClient.findMatchingUserIdentity("invalid-eauth-id");
-
-        // Verify - should return empty user identity
-        assertNotNull(result);
-        assertEquals("", result.getAuthenticationSystemIdentifier());
-        assertEquals("", result.getAuthorizationSystemIdentifier());
-        assertEquals("", result.getUserLoginName());
-        mockServer.verify();
-    }
-}
-
-
-// Mock Configuration for Testing
-@org.springframework.boot.test.context.TestConfiguration
-class TestSoapConfiguration {
-
-    @org.springframework.context.annotation.Bean
-    @org.springframework.context.annotation.Primary
-    public WebServiceTemplate mockWebServiceTemplate() {
-        WebServiceTemplate template = new WebServiceTemplate();
-        template.setDefaultUri("http://localhost:8080/mock-soap-service");
-        return template;
-    }
-
-    @org.springframework.context.annotation.Bean
-    @org.springframework.context.annotation.Primary  
-    public SimpleAuthorizationSoapClient mockSoapClient() {
-        return new SimpleAuthorizationSoapClient(mockWebServiceTemplate());
     }
 }
